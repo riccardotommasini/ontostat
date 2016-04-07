@@ -5,6 +5,7 @@ import com.github.rvesse.airline.SingleCommand;
 import com.github.rvesse.airline.annotations.Command;
 import com.github.rvesse.airline.annotations.Option;
 import com.github.rvesse.airline.annotations.restrictions.AllowedRawValues;
+import com.github.rvesse.airline.annotations.restrictions.Required;
 
 import javax.inject.Inject;
 
@@ -12,9 +13,9 @@ import javax.inject.Inject;
  * Created by Riccardo on 25/02/16.
  */
 
-@Command(name = "main", description = "Start some Ontology Profiling utils")
+@Command(name = "profile", description = "Start some Ontology Profiling utils")
 
-public class Launcher {
+public class ProfilerLauncher implements Runnable{
 
     @Option(name = {"-m", "--materialize"}, description = "Materialize the data under a certain entailment regime")
 
@@ -27,42 +28,37 @@ public class Launcher {
 
     @Option(name = {"-p", "--persist"}, description = "Persist the materialized data")
 
-    private boolean persist = false;
+    private boolean persist = true;
 
     @Option(name = {"-q", "--profile"}, description = "Persist the materialized data")
 
     private boolean profile = false;
 
     @Option(name = {"-o", "--onto"}, description = "Given TBox")
-
+    @Required
     private String tbox_file;
 
     @Option(name = {"-a", "--abox"}, description = "Given ABox")
+    @Required
 
     private String abox_file;
 
-    @Option(name = {"-as", "--aboxstar"}, description = "Given materialized ABox")
-
-    private String abox_star_file;
-
 
     @Inject
-    private HelpOption<Launcher> help;
+    private HelpOption<ProfilerLauncher> help;
 
     public static void main(String[] args) {
 
-        SingleCommand<Launcher> parser = SingleCommand.singleCommand(Launcher.class);
+        SingleCommand<ProfilerLauncher> parser = SingleCommand.singleCommand(ProfilerLauncher.class);
         try {
-            Launcher launcher = parser.parse(args);
+            ProfilerLauncher launcher = parser.parse(args);
 
             // Show help if requested
             if (launcher.help.showHelpIfRequested()) {
                 System.exit(1);
             }
 
-            Program p = new Program();
-            p.run(launcher.materialize, launcher.persist, launcher.profile, launcher.tbox_file, launcher.abox_file, launcher.ent);
-
+            launcher.run();
 
         } catch (Throwable e) {
             e.printStackTrace(System.err);
@@ -75,4 +71,9 @@ public class Launcher {
     }
 
 
+    public void run() {
+        Program p = new Profiler(ent, materialize, persist, tbox_file, abox_file);
+        p.run();
+
+    }
 }
