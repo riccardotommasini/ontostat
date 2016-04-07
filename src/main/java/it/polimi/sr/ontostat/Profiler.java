@@ -124,6 +124,7 @@ public class Profiler extends Program {
         writer_star.writeNext(header);
 
         for (String p : data) {
+            System.out.println("Processing ["+p+"]");
             for (String[] s : QueryUtils.propertyUsage(p, model)) {
                 writer.writeNext(s);
 
