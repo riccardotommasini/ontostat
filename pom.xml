@@ -43,7 +43,7 @@
                         <manifest>
                             <addClasspath>true</addClasspath>
                             <classpathPrefix>lib/</classpathPrefix>
-                            <mainClass>it.polimi.sr.ontostat.Launcher</mainClass>
+                            <mainClass>it.polimi.sr.ontostat.BasicCli</mainClass>
                         </manifest>
                     </archive>
                 </configuration>
