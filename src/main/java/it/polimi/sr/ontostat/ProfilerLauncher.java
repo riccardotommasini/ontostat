@@ -15,13 +15,13 @@ import javax.inject.Inject;
 
 @Command(name = "profile", description = "Start some Ontology Profiling utils")
 
-public class ProfilerLauncher implements Runnable{
+public class ProfilerLauncher implements Runnable {
 
     @Option(name = {"-m", "--materialize"}, description = "Materialize the data under a certain entailment regime")
 
     private boolean materialize = false;
 
-    @Option(name = {
+    @Option(name = {"-e",
             "--ent"}, title = "Entailment", arity = 1, description = "The entailment regime to perform reasoning")
     @AllowedRawValues(allowedValues = {"RDFS", "RHODFL", "OWL"})
     private Entailment ent = Entailment.NONE;
@@ -30,11 +30,7 @@ public class ProfilerLauncher implements Runnable{
 
     private boolean persist = true;
 
-    @Option(name = {"-q", "--profile"}, description = "Persist the materialized data")
-
-    private boolean profile = false;
-
-    @Option(name = {"-o", "--onto"}, description = "Given TBox")
+    @Option(name = {"-t", "--tbox"}, description = "Given TBox")
     @Required
     private String tbox_file;
 
