@@ -3,7 +3,9 @@ package it.polimi.sr.ontostat;
 /**
  * Created by Riccardo on 07/04/16.
  */
-public interface Program {
+public abstract class Program {
 
-     void run();
+     public abstract void run();
+
+
 }

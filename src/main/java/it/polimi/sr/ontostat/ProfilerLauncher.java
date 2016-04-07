@@ -26,10 +26,6 @@ public class ProfilerLauncher implements Runnable {
     @AllowedRawValues(allowedValues = {"RDFS", "RHODFL", "OWL"})
     private Entailment ent = Entailment.NONE;
 
-    @Option(name = {"-p", "--persist"}, description = "Persist the materialized data")
-
-    private boolean persist = true;
-
     @Option(name = {"-t", "--tbox"}, description = "Given TBox")
     @Required
     private String tbox_file;
@@ -38,6 +34,11 @@ public class ProfilerLauncher implements Runnable {
     @Required
 
     private String abox_file;
+
+    @Option(name = {"--db",}, description = "Database folder")
+    @Required
+
+    private String db;
 
 
     @Inject
@@ -68,7 +69,7 @@ public class ProfilerLauncher implements Runnable {
 
 
     public void run() {
-        Program p = new Profiler(ent, materialize, persist, tbox_file, abox_file);
+        Program p = new Profiler(ent, materialize, tbox_file, abox_file, db);
         p.run();
 
     }

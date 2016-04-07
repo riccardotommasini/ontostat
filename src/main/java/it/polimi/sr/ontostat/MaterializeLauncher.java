@@ -35,6 +35,13 @@ public class MaterializeLauncher implements Runnable {
 
     private String abox_file;
 
+
+    @Option(name = {"--db", }, description = "Database folder")
+    @Required
+
+    private String db;
+
+
     @Inject
     private HelpOption<MaterializeLauncher> help;
 
@@ -71,7 +78,7 @@ public class MaterializeLauncher implements Runnable {
             System.exit(1);
         }
 
-        Program p = new Materialize(ent, persist, tbox_file, abox_file);
+        Program p = new Materialize(ent, persist, tbox_file, abox_file, db);
         p.run();
     }
 }
