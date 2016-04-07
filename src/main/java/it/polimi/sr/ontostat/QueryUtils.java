@@ -1,11 +1,11 @@
 package it.polimi.sr.ontostat;
 
-import com.hp.hpl.jena.graph.NodeFactory;
-import com.hp.hpl.jena.query.*;
-import com.hp.hpl.jena.rdf.model.Literal;
-import com.hp.hpl.jena.rdf.model.Model;
-import com.hp.hpl.jena.rdf.model.RDFNode;
-import com.hp.hpl.jena.rdf.model.Resource;
+import org.apache.jena.graph.NodeFactory;
+import org.apache.jena.query.*;
+import org.apache.jena.rdf.model.Literal;
+import org.apache.jena.rdf.model.Model;
+import org.apache.jena.rdf.model.RDFNode;
+import org.apache.jena.rdf.model.Resource;
 
 import java.io.FileWriter;
 import java.io.IOException;

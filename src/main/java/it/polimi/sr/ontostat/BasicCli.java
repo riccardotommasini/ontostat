@@ -4,8 +4,8 @@ import com.github.rvesse.airline.annotations.Cli;
 
 @Cli(name = "basic",
         description = "Provides a basic example CLI",
-        defaultCommand = MaterializerLauncher.class,
-        commands = { MaterializerLauncher.class, ProfilerLauncher.class })
+        defaultCommand = MaterializeLauncher.class,
+        commands = { MaterializeLauncher.class, ProfilerLauncher.class })
 
 
 public class BasicCli {

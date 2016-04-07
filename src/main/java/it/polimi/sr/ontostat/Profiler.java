@@ -1,16 +1,15 @@
 package it.polimi.sr.ontostat;
 
-import com.hp.hpl.jena.ontology.OntModel;
-import com.hp.hpl.jena.ontology.OntModelSpec;
-import com.hp.hpl.jena.rdf.model.InfModel;
-import com.hp.hpl.jena.rdf.model.Model;
-import com.hp.hpl.jena.rdf.model.ModelFactory;
-import com.hp.hpl.jena.rdf.model.impl.InfModelImpl;
-import com.hp.hpl.jena.reasoner.InfGraph;
-import com.hp.hpl.jena.reasoner.Reasoner;
-import com.hp.hpl.jena.reasoner.ReasonerRegistry;
-import com.hp.hpl.jena.util.FileManager;
 import com.opencsv.CSVWriter;
+import org.apache.jena.query.Dataset;
+import org.apache.jena.rdf.model.InfModel;
+import org.apache.jena.rdf.model.Model;
+import org.apache.jena.rdf.model.impl.InfModelImpl;
+import org.apache.jena.reasoner.InfGraph;
+import org.apache.jena.reasoner.Reasoner;
+import org.apache.jena.reasoner.ReasonerRegistry;
+import org.apache.jena.tdb.TDBFactory;
+import org.apache.jena.tdb.TDBLoader;
 
 import java.io.FileWriter;
 import java.io.IOException;
@@ -51,12 +50,17 @@ public class Profiler implements Program {
 
             System.out.println("Running");
 
-            Model abox = FileManager.get().loadModel(abox_file, null, "N-TRIPLE");
+            System.out.println(abox_file + " "+tbox_file);
 
-            Model m = abox;
-            OntModelSpec onto_lang = OntModelSpec.OWL_MEM;
-            OntModel tbox = ModelFactory.createOntologyModel(onto_lang);
-            tbox.read(FileManager.get().open(tbox_file), "", "RDF/XML");
+            Dataset dataset = TDBFactory.createDataset("./database/");
+            Model tbox = dataset.getDefaultModel();
+            TDBLoader.loadModel(tbox, tbox_file);
+
+            Model abox = dataset.getNamedModel("http://example.org/abox");
+            TDBLoader.loadModel(abox, abox_file);
+
+            InfModel abox_star = null;
+
 
             if (materialize) {
                 System.out.println("Materialize");
@@ -78,10 +82,9 @@ public class Profiler implements Program {
                         reasoner = ReasonerRegistry.getOWLReasoner();
                 }
 
-
                 InfGraph graph = reasoner.bindSchema(tbox.getGraph()).bind(abox.getGraph());
-                InfModel infmodel = new InfModelImpl(graph);
-                m = infmodel;
+                abox_star = new InfModelImpl(graph);
+                abox = abox_star;
 
             }
 
@@ -93,7 +96,7 @@ public class Profiler implements Program {
                 class_occurrence_writer.writeNext(class_occurrence_header);
                 for (String c : classes) {
                     class_occurrence_writer.writeNext(new String[]{c.replace("http://swat.cse.lehigh.edu/onto/univ-bench.owl#", ""),
-                            QueryUtils.countClassOccurence(c, abox) + "", "" + QueryUtils.countClassOccurence(c, m)});
+                            QueryUtils.countClassOccurence(c, abox) + "", "" + (abox_star != null ? QueryUtils.countClassOccurence(c, abox_star) : "")});
 
                 }
                 class_occurrence_writer.close();
@@ -108,7 +111,7 @@ public class Profiler implements Program {
 
                 for (String p : obj_properties) {
                     prop_occurrence_writer.writeNext(new String[]{p.replace("http://swat.cse.lehigh.edu/onto/univ-bench.owl#", ""),
-                            QueryUtils.countPropertyOccurence(p, abox) + "", "" + QueryUtils.countPropertyOccurence(p, m)});
+                            QueryUtils.countPropertyOccurence(p, abox) + "", "" + (abox_star != null ? QueryUtils.countPropertyOccurence(p, abox_star) : "")});
 
                 }
 
@@ -116,7 +119,7 @@ public class Profiler implements Program {
 
                 for (String p : datatype_properties) {
                     prop_occurrence_writer.writeNext(new String[]{p.replace("http://swat.cse.lehigh.edu/onto/univ-bench.owl#", ""),
-                            QueryUtils.countPropertyOccurence(p, abox) + "", "" + QueryUtils.countPropertyOccurence(p, m)});
+                            QueryUtils.countPropertyOccurence(p, abox) + "", "" + (abox_star != null ? QueryUtils.countPropertyOccurence(p, abox_star) : "")});
 
                 }
 
@@ -140,7 +143,7 @@ public class Profiler implements Program {
                     }
                     if (materialize) {
                         System.out.println("Materialized Dataset: [" + p + "]");
-                        strings = QueryUtils.propertyUsage(p, m);
+                        strings = QueryUtils.propertyUsage(p, abox_star);
                         for (String[] s : strings) {
                             property_usage_materialized_writer.writeNext(s);
                         }
@@ -159,7 +162,7 @@ public class Profiler implements Program {
                     }
                     if (materialize) {
                         System.out.println("Materialized Dataset: [" + p + "]");
-                        strings = QueryUtils.propertyUsage(p, m);
+                        strings = QueryUtils.propertyUsage(p, abox_star);
                         for (String[] s : strings) {
                             property_usage_materialized_writer.writeNext(s);
                         }

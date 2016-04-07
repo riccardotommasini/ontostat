@@ -15,7 +15,7 @@ import javax.inject.Inject;
 
 @Command(name = "materialize", description = "Utility for ontology materialization")
 
-public class MaterializerLauncher implements Runnable {
+public class MaterializeLauncher implements Runnable {
 
     @Option(name = {"-e", "--ent"}, title = "Entailment", arity = 1, description = "The entailment regime to perform reasoning")
     @AllowedRawValues(allowedValues = {"RDFS", "RHODFL", "OWL"})
@@ -36,15 +36,15 @@ public class MaterializerLauncher implements Runnable {
     private String abox_file;
 
     @Inject
-    private HelpOption<MaterializerLauncher> help;
+    private HelpOption<MaterializeLauncher> help;
 
 
     public static void main(String[] args) {
 
-        SingleCommand<MaterializerLauncher> parser = SingleCommand.singleCommand(MaterializerLauncher.class);
+        SingleCommand<MaterializeLauncher> parser = SingleCommand.singleCommand(MaterializeLauncher.class);
         try {
 
-            MaterializerLauncher launcher = parser.parse(args);
+            MaterializeLauncher launcher = parser.parse(args);
 
             if (launcher.help.showHelpIfRequested()) {
                 System.exit(1);
@@ -71,7 +71,7 @@ public class MaterializerLauncher implements Runnable {
             System.exit(1);
         }
 
-        Program p = new Reasoner(ent, persist, tbox_file, abox_file);
+        Program p = new Materialize(ent, persist, tbox_file, abox_file);
         p.run();
     }
 }

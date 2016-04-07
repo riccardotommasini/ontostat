@@ -1,19 +1,21 @@
 package it.polimi.sr.ontostat;
 
-import com.hp.hpl.jena.ontology.OntModel;
-import com.hp.hpl.jena.ontology.OntModelSpec;
-import com.hp.hpl.jena.rdf.model.InfModel;
-import com.hp.hpl.jena.rdf.model.Model;
-import com.hp.hpl.jena.rdf.model.ModelFactory;
-import com.hp.hpl.jena.rdf.model.impl.InfModelImpl;
-import com.hp.hpl.jena.reasoner.InfGraph;
-import com.hp.hpl.jena.reasoner.ReasonerRegistry;
-import com.hp.hpl.jena.util.FileManager;
+
+import org.apache.jena.ontology.OntModel;
+import org.apache.jena.ontology.OntModelSpec;
+import org.apache.jena.rdf.model.InfModel;
+import org.apache.jena.rdf.model.Model;
+import org.apache.jena.rdf.model.ModelFactory;
+import org.apache.jena.rdf.model.impl.InfModelImpl;
+import org.apache.jena.reasoner.InfGraph;
+import org.apache.jena.reasoner.Reasoner;
+import org.apache.jena.reasoner.ReasonerRegistry;
+import org.apache.jena.util.FileManager;
 
 /**
  * Created by Riccardo on 07/04/16.
  */
-public class Reasoner implements Program {
+public class Materialize implements Program {
 
 
     private Entailment ent = Entailment.NONE;
@@ -21,7 +23,7 @@ public class Reasoner implements Program {
     private String tbox_file;
     private String abox_file;
 
-    public Reasoner(Entailment ent, boolean persist, String tbox_file, String abox_file) {
+    public Materialize(Entailment ent, boolean persist, String tbox_file, String abox_file) {
         this.ent = ent;
         this.persist = persist;
         this.tbox_file = tbox_file;
@@ -31,7 +33,7 @@ public class Reasoner implements Program {
     public void run() {
         System.out.println("Materialize");
 
-        com.hp.hpl.jena.reasoner.Reasoner reasoner = null;
+        Reasoner reasoner = null;
 
         String output_filename = abox_file.split("\\.")[0] + "-materialized-"
                 + ent.toString();
