@@ -52,6 +52,7 @@ public class Profiler implements Program {
 
             System.out.println(abox_file + " "+tbox_file);
 
+
             Dataset dataset = TDBFactory.createDataset("./database/");
             Model tbox = dataset.getDefaultModel();
             TDBLoader.loadModel(tbox, tbox_file);
