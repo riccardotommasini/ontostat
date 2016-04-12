@@ -7,8 +7,6 @@ import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.RDFNode;
 import org.apache.jena.rdf.model.Resource;
 
-import java.io.FileWriter;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -159,18 +157,21 @@ public class QueryUtils {
 
         List<String[]> res = new ArrayList<String[]>();
 
+        QuerySolution binding;
+        RDFNode d_binding, r_binding;
+        String d, r, occurrence;
         while (results.hasNext()) {
-            QuerySolution binding = results.nextSolution();
+            binding = results.nextSolution();
 
-            RDFNode d_binding = binding.get("d");
-            String d = d_binding != null ? d_binding.toString().replace("http://swat.cse.lehigh.edu/onto/univ-bench.owl#", "") : "";
+            d_binding = binding.get("d");
+            d = d_binding != null ? d_binding.toString().replace("http://swat.cse.lehigh.edu/onto/univ-bench.owl#", "") : "";
             d.replace("http://www.w3.org/2000/01/rdf-schema#", "rdfs:");
 
-            RDFNode r_binding = binding.get("r");
-            String r = r_binding != null ? r_binding.toString().replace("http://swat.cse.lehigh.edu/onto/univ-bench.owl#", "") : "";
+            r_binding = binding.get("r");
+            r = r_binding != null ? r_binding.toString().replace("http://swat.cse.lehigh.edu/onto/univ-bench.owl#", "") : "";
             r.replace("http://www.w3.org/2000/01/rdf-schema#", "rdfs:");
 
-            String occurrence = "" + binding.get("occurrence").asLiteral().getInt();
+            occurrence = "" + binding.get("occurrence").asLiteral().getInt();
 
             res.add(new String[]{p, d, r, occurrence});
         }
@@ -178,14 +179,4 @@ public class QueryUtils {
         return res;
     }
 
-
-    public static void saveResult(String fileName, Model onto) {
-        try {
-            FileWriter out = new FileWriter(fileName);
-            onto.write(out, "N-TRIPLE");
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-    }
 }

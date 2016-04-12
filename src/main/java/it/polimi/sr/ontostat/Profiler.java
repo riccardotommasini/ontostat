@@ -7,6 +7,7 @@ import org.apache.jena.rdf.model.Model;
 import org.apache.jena.tdb.TDBFactory;
 import org.apache.jena.tdb.TDBLoader;
 
+import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.List;
@@ -27,15 +28,20 @@ public class Profiler extends Program {
     private boolean materialize;
     private String tbox_file;
     private String abox_file;
+    private String abox_star_file;
     private String db;
 
-    public Profiler(Entailment ent, boolean materialize, String tbox_file, String abox_file, String db) {
+    public Profiler(Entailment ent, boolean materialize, String abox_star_file, String tbox_file, String abox_file, String db) {
         this.ent = ent;
         this.materialize = materialize;
         this.tbox_file = tbox_file;
         this.abox_file = abox_file;
+        this.abox_star_file = abox_star_file;
         this.db = db;
 
+        File database = new File(db);
+        if (!database.exists())
+            database.mkdirs();
     }
 
 
@@ -44,7 +50,7 @@ public class Profiler extends Program {
 
             System.out.println("Running");
 
-            System.out.println(abox_file + " " + tbox_file);
+            System.out.println(abox_file + " " + tbox_file + " " + abox_star_file);
 
 
             Dataset dataset = TDBFactory.createDataset(db);
@@ -57,7 +63,10 @@ public class Profiler extends Program {
             Model abox_star = null;
 
             if (materialize) {
-                abox_star = Materialize.materialize(tbox, abox, ent);
+                abox_star = MaterializationUtils.materialize(tbox_file, abox_file, "./", ent, "out.owl");
+            } else {
+                abox_star = dataset.getNamedModel("http://example.org/abox_star");
+                TDBLoader.loadModel(abox_star, abox_star_file);
             }
 
 
@@ -124,16 +133,16 @@ public class Profiler extends Program {
         writer_star.writeNext(header);
 
         for (String p : data) {
-            System.out.println("Processing ["+p+"]");
+            System.out.println("Processing [" + p + "]");
             for (String[] s : QueryUtils.propertyUsage(p, model)) {
                 writer.writeNext(s);
-
+                writer.flush();
             }
-            if(materialize){
-                for (String[] s : QueryUtils.propertyUsage(p, model_star)) {
-                    writer_star.writeNext(s);
+            for (String[] s : QueryUtils.propertyUsage(p, model_star)) {
+                writer_star.writeNext(s);
 
-                }
+
+                writer_star.flush();
             }
 
         }

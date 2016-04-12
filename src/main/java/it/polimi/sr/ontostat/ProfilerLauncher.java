@@ -5,6 +5,7 @@ import com.github.rvesse.airline.SingleCommand;
 import com.github.rvesse.airline.annotations.Command;
 import com.github.rvesse.airline.annotations.Option;
 import com.github.rvesse.airline.annotations.restrictions.AllowedRawValues;
+import com.github.rvesse.airline.annotations.restrictions.MutuallyExclusiveWith;
 import com.github.rvesse.airline.annotations.restrictions.Required;
 
 import javax.inject.Inject;
@@ -18,11 +19,11 @@ import javax.inject.Inject;
 public class ProfilerLauncher implements Runnable {
 
     @Option(name = {"-m", "--materialize"}, description = "Materialize the data under a certain entailment regime")
+    @MutuallyExclusiveWith(tag = "mat")
 
     private boolean materialize = false;
 
-    @Option(name = {"-e",
-            "--ent"}, title = "Entailment", arity = 1, description = "The entailment regime to perform reasoning")
+    @Option(name = {"-e", "--ent"}, title = "Entailment", arity = 1, description = "The entailment regime to perform reasoning")
     @AllowedRawValues(allowedValues = {"RDFS", "RHODFL", "OWL"})
     private Entailment ent = Entailment.NONE;
 
@@ -32,17 +33,23 @@ public class ProfilerLauncher implements Runnable {
 
     @Option(name = {"-a", "--abox"}, description = "Given ABox")
     @Required
-
     private String abox_file;
 
-    @Option(name = {"--db",}, description = "Database folder")
-    @Required
+    @Option(name = {"-as", "--aboxs"}, description = "Given Materialized ABox")
+    @MutuallyExclusiveWith(tag = "mat")
 
-    private String db;
+    private String abox_star_file;
+
+
+    @Option(name = {"--db",}, description = "Database folder")
+    private String db = "./db/";
 
 
     @Inject
     private HelpOption<ProfilerLauncher> help;
+
+    public ProfilerLauncher() {
+    }
 
     public static void main(String[] args) {
 
@@ -69,7 +76,7 @@ public class ProfilerLauncher implements Runnable {
 
 
     public void run() {
-        Program p = new Profiler(ent, materialize, tbox_file, abox_file, db);
+        Program p = new Profiler(ent, materialize, abox_star_file, tbox_file, abox_file, db);
         p.run();
 
     }
