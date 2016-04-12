@@ -25,9 +25,7 @@ public class MaterializeLauncher implements Runnable {
 
     private boolean persist = false;
 
-
     @Option(name = {"-t", "--tbox"}, description = "Given TBox")
-    @Required
     private String tbox_file;
 
     @Option(name = {"-a", "--abox"}, description = "Given ABox")
@@ -35,11 +33,9 @@ public class MaterializeLauncher implements Runnable {
 
     private String abox_file;
 
-
     @Option(name = {"--db", }, description = "Database folder")
-    @Required
 
-    private String db;
+    private String db="./db/";
 
 
     @Inject
@@ -78,7 +74,7 @@ public class MaterializeLauncher implements Runnable {
             System.exit(1);
         }
 
-        Program p = new Materialize(ent, persist, tbox_file, abox_file, db);
+        Program p = new Materialize(ent, tbox_file, abox_file, db);
         p.run();
     }
 }
