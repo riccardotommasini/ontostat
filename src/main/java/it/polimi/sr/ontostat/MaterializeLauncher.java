@@ -21,10 +21,6 @@ public class MaterializeLauncher implements Runnable {
     @AllowedRawValues(allowedValues = {"RDFS", "RHODFL", "OWL"})
     private Entailment ent = Entailment.NONE;
 
-    @Option(name = {"-p", "--persist"}, description = "Persist the materialized data")
-
-    private boolean persist = false;
-
     @Option(name = {"-t", "--tbox"}, description = "Given TBox")
     private String tbox_file;
 
