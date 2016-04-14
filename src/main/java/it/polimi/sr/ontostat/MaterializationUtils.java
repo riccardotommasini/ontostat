@@ -1,10 +1,12 @@
 package it.polimi.sr.ontostat;
 
+import org.apache.jena.ontology.OntModel;
+import org.apache.jena.ontology.OntModelSpec;
 import org.apache.jena.query.Dataset;
 import org.apache.jena.rdf.model.InfModel;
 import org.apache.jena.rdf.model.Model;
-import org.apache.jena.rdf.model.impl.InfModelImpl;
-import org.apache.jena.reasoner.InfGraph;
+import org.apache.jena.rdf.model.ModelFactory;
+import org.apache.jena.rdf.model.RDFWriter;
 import org.apache.jena.reasoner.ReasonerRegistry;
 import org.apache.jena.tdb.TDBFactory;
 import org.apache.jena.tdb.TDBLoader;
@@ -34,17 +36,17 @@ public class MaterializationUtils {
 
     static {
 
-
         c.reasonerProgressMonitor = new ConsoleProgressMonitor();
 
     }
 
-    public static void materialize(String abox_file, String output_file) {
+    public static void materialize(String abox_file,String tbox_file, String output_file) {
         try {
             File abox = new File(abox_file);
+            File tbox = new File(tbox_file);
 
             OWLOntology ontology = manager.loadOntologyFromOntologyDocument(abox);
-            //manager.addAxioms(ontology, manager.loadOntologyFromOntologyDocument(tbox).getAxioms());
+            manager.addAxioms(ontology, manager.loadOntologyFromOntologyDocument(tbox).getAxioms());
 
             OWLReasoner reasoner = factory.createReasoner(ontology, c);
             reasoner.precomputeInferences(InferenceType.CLASS_HIERARCHY, InferenceType.CLASS_ASSERTIONS, InferenceType.OBJECT_PROPERTY_HIERARCHY, InferenceType.DATA_PROPERTY_HIERARCHY, InferenceType.OBJECT_PROPERTY_ASSERTIONS);
@@ -68,38 +70,38 @@ public class MaterializationUtils {
     }
 
 
-    public static Model materialize(String tbox_file, String abox_file, String db, Entailment ent, String output_filename) {
+    public static Model materialize(String tbox_file, String abox_file, String db, Entailment ent, String output_filename, String format) {
         try {
             org.apache.jena.reasoner.Reasoner reasoner = null;
 
+            OntModelSpec spec = OntModelSpec.RDFS_MEM_RDFS_INF;
             switch (ent) {
-                case RDFS:
-                    reasoner = ReasonerRegistry.getRDFSReasoner();
+                case NONE:
+                    spec = OntModelSpec.RDFS_MEM;
                     break;
                 case RHODF:
-                    reasoner = ReasonerRegistry.getRDFSSimpleReasoner();
+                    break;
+                case RDFS:
+                    spec = OntModelSpec.RDFS_MEM_RDFS_INF;
+                    reasoner = ReasonerRegistry.getRDFSReasoner();
+                    break;
+                case OWL:
+                    spec = OntModelSpec.OWL_DL_MEM_RULE_INF;
+                    reasoner = ReasonerRegistry.getOWLMiniReasoner();
                     break;
             }
 
             Dataset dataset = TDBFactory.createDataset(db);
-            Model tbox = dataset.getDefaultModel();
+            Model tbox = ModelFactory.createOntologyModel(spec, dataset.getDefaultModel());
             TDBLoader.loadModel(tbox, tbox_file);
 
             Model abox = dataset.getNamedModel("http://example.org/abox");
             TDBLoader.loadModel(abox, abox_file);
 
-            InfGraph graph = reasoner.bindSchema(tbox.getGraph()).bind(abox.getGraph());
-            InfModel m = new InfModelImpl(graph);
+            InfModel m = ModelFactory.createInfModel(reasoner, tbox, abox);
+            save(output_filename + "", m, format);
 
-            save(output_filename + ".nt", m);
-
-            abox.removeAll();
-            tbox.removeAll();
-            abox.commit();
-            abox.close();
-            tbox.commit();
-            tbox.close();
-            dataset.close();
+            dataset.end();
             return m;
         } catch (IOException e) {
             e.printStackTrace();
@@ -107,11 +109,10 @@ public class MaterializationUtils {
         }
     }
 
-    public static void save(String fileName, Model onto) throws IOException {
-        System.out.println("Persisting");
+    public static void save(String fileName, Model onto, String format) throws IOException {
+        System.out.println("Persisting [" + fileName + "] [" + format + "]");
         FileWriter out = new FileWriter(fileName);
-        onto.write(out, "N-TRIPLE");
-
+        onto.write(out, format);
     }
 
     private static void save(String output_file, OWLOntologyFormat format, OWLOntology inferredAxiomsOntology) throws IOException, OWLOntologyStorageException {

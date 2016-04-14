@@ -29,10 +29,12 @@ public class MaterializeLauncher implements Runnable {
 
     private String abox_file;
 
-    @Option(name = {"--db", }, description = "Database folder")
+    @Option(name = {"--db",}, description = "Database folder")
 
-    private String db="./db/";
+    private String db = "./db/";
 
+    @Option(name = {"-f", "--format"}, description = "Output file format")
+    private String format = "N-TRIPLE";
 
     @Inject
     private HelpOption<MaterializeLauncher> help;
@@ -70,7 +72,7 @@ public class MaterializeLauncher implements Runnable {
             System.exit(1);
         }
 
-        Program p = new Materialize(ent, tbox_file, abox_file, db);
+        Program p = new Materialize(ent, tbox_file, abox_file, db, format);
         p.run();
     }
 }

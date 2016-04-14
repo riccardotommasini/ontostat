@@ -24,16 +24,12 @@ public class Profiler extends Program {
     private static final String[] class_occurrence_header = new String[]{"CLASS", "OCCURRENCE", "OCCURRENCE AFTER MATERIALIZATION"};
 
 
-    private Entailment ent;
-    private boolean materialize;
     private String tbox_file;
     private String abox_file;
     private String abox_star_file;
     private String db;
 
-    public Profiler(Entailment ent, boolean materialize, String abox_star_file, String tbox_file, String abox_file, String db) {
-        this.ent = ent;
-        this.materialize = materialize;
+    public Profiler(String abox_star_file, String tbox_file, String abox_file, String db) {
         this.tbox_file = tbox_file;
         this.abox_file = abox_file;
         this.abox_star_file = abox_star_file;
@@ -62,12 +58,8 @@ public class Profiler extends Program {
 
             Model abox_star = null;
 
-            if (materialize) {
-                abox_star = MaterializationUtils.materialize(tbox_file, abox_file, "./", ent, "out.owl");
-            } else {
-                abox_star = dataset.getNamedModel("http://example.org/abox_star");
-                TDBLoader.loadModel(abox_star, abox_star_file);
-            }
+            abox_star = dataset.getNamedModel("http://example.org/abox_star");
+            TDBLoader.loadModel(abox_star, abox_star_file);
 
 
             System.out.println("Class Profiling");

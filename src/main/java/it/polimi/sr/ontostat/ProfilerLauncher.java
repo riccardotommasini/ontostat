@@ -4,8 +4,6 @@ import com.github.rvesse.airline.HelpOption;
 import com.github.rvesse.airline.SingleCommand;
 import com.github.rvesse.airline.annotations.Command;
 import com.github.rvesse.airline.annotations.Option;
-import com.github.rvesse.airline.annotations.restrictions.AllowedRawValues;
-import com.github.rvesse.airline.annotations.restrictions.MutuallyExclusiveWith;
 import com.github.rvesse.airline.annotations.restrictions.Required;
 
 import javax.inject.Inject;
@@ -18,15 +16,6 @@ import javax.inject.Inject;
 
 public class ProfilerLauncher implements Runnable {
 
-    @Option(name = {"-m", "--materialize"}, description = "Materialize the data under a certain entailment regime")
-    @MutuallyExclusiveWith(tag = "mat")
-
-    private boolean materialize = false;
-
-    @Option(name = {"-e", "--ent"}, title = "Entailment", arity = 1, description = "The entailment regime to perform reasoning")
-    @AllowedRawValues(allowedValues = {"RDFS", "RHODFL", "OWL"})
-    private Entailment ent = Entailment.NONE;
-
     @Option(name = {"-t", "--tbox"}, description = "Given TBox")
     @Required
     private String tbox_file;
@@ -36,7 +25,6 @@ public class ProfilerLauncher implements Runnable {
     private String abox_file;
 
     @Option(name = {"-as", "--aboxs"}, description = "Given Materialized ABox")
-    @MutuallyExclusiveWith(tag = "mat")
 
     private String abox_star_file;
 
@@ -76,7 +64,7 @@ public class ProfilerLauncher implements Runnable {
 
 
     public void run() {
-        Program p = new Profiler(ent, materialize, abox_star_file, tbox_file, abox_file, db);
+        Program p = new Profiler(abox_star_file, tbox_file, abox_file, db);
         p.run();
 
     }
