@@ -92,11 +92,12 @@ public class MaterializationUtils {
             }
 
             Dataset dataset = TDBFactory.createDataset(db);
-            Model tbox = ModelFactory.createOntologyModel(spec, dataset.getDefaultModel());
-            TDBLoader.loadModel(tbox, tbox_file);
+            Model def_tbox = dataset.getDefaultModel();
+            TDBLoader.loadModel(def_tbox, tbox_file, true);
+            Model tbox = ModelFactory.createOntologyModel(spec, def_tbox);
 
             Model abox = dataset.getNamedModel("http://example.org/abox");
-            TDBLoader.loadModel(abox, abox_file);
+            TDBLoader.loadModel(abox, abox_file, true);
 
             InfModel m = ModelFactory.createInfModel(reasoner, tbox, abox);
             save(output_filename + "", m, format);
